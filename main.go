@@ -186,7 +186,7 @@ func postSlack(webhookURL string, channelName string, details []cost) error {
 		unit := strings.TrimSpace(detail.unit)
 		texts = append(texts, fmt.Sprintf("%-40s : %10.3f %s", key, detail.amount, unit))
 	}
-	text := fmt.Sprintf("```%s```", strings.Join(texts, "\n"))
+	text := fmt.Sprintf("```\n%s\n```", strings.Join(texts, "\n"))
 
 	req := map[string]interface{}{
 		"text":        "AWS Cost and Usage",
