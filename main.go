@@ -68,7 +68,11 @@ func run(webhook string, channel string) error {
 }
 
 func getCosts() ([]cost, error) {
-	costExplorer := costexplorer.New(session.New())
+	session, err := session.NewSession()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new AWS session")
+	}
+	costExplorer := costexplorer.New(session)
 
 	now := time.Now().In(time.UTC)
 	startDate := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
