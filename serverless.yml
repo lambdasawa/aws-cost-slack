@@ -1,0 +1,24 @@
+service: aws-cost-slack
+
+frameworkVersion: "=1.67.0"
+
+provider:
+  name: aws
+  runtime: go1.x
+  stage: dev
+  region: ap-northeast-1
+
+package:
+  exclude:
+    - ./**
+  include:
+    - ./bin/**
+
+functions:
+  hello:
+    handler: bin/main
+    events:
+      - schedule: cron(0 2 * * ? *) # JST 11:00
+    environment:
+      ACS_WEBHOOK: ${env:ACS_WEBHOOK}
+      ACS_CHANNEL: ${env:ACS_CHANNEL}

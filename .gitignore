@@ -1,3 +1,4 @@
-aws-cost-slack
-main
-handler.zip
+bin/main
+.env
+.serverless
+
