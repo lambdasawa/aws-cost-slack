@@ -33,3 +33,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           ACS_WEBHOOK: ${{ secrets.ACS_WEBHOOK }}
           ACS_CHANNEL: ${{ secrets.ACS_CHANNEL }}
+
+      - name: Slack Notification
+        if: always()
+        uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_WEBHOOK: ${{ secrets.ACS_WEBHOOK }}
