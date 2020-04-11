@@ -34,8 +34,16 @@ jobs:
           ACS_WEBHOOK: ${{ secrets.ACS_WEBHOOK }}
           ACS_CHANNEL: ${{ secrets.ACS_CHANNEL }}
 
-      - name: Slack Notification
-        if: always()
+      - name: Slack Notification (when success)
+        if: success()
         uses: rtCamp/action-slack-notify@master
         env:
           SLACK_WEBHOOK: ${{ secrets.ACS_WEBHOOK }}
+          SLACK_COLOR: good
+
+      - name: Slack Notification (when failure)
+        if: failure()
+        uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_WEBHOOK: ${{ secrets.ACS_WEBHOOK }}
+          SLACK_COLOR: danger
