@@ -22,6 +22,9 @@ jobs:
 
       - name: Run golangci-lint
         uses: actions-contrib/golangci-lint@v1
+        env:
+          GOOS: "linux"
+          GOARCH: "amd64"
 
       - name: install serverless
         run: npm i -g serverless@1.67.0
