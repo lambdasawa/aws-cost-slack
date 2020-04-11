@@ -20,6 +20,9 @@ jobs:
         with:
           go-version: "1.14.2"
 
+      - name: Run golangci-lint
+        uses: actions-contrib/golangci-lint@v1
+
       - name: install serverless
         run: npm i -g serverless@1.67.0
 
