@@ -1,10 +1,11 @@
-.PHONY: run deploy
+.PHONY: run deploy undeploy
 
 run:
 	go run main.go
 
 deploy:
-	rm -f main handler.zip
-	go build -o main main.go
-	zip handler.zip main
-	aws lambda update-function-code --function-name ${FUNCTION_NAME} --zip-file fileb://${PWD}/handler.zip
+	GOOS=linux go build -o bin/main main.go
+	sls deploy
+
+undeploy:
+	sls destroy

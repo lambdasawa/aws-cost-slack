@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -17,7 +16,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/costexplorer"
-	"github.com/aws/aws-sdk-go/service/kms"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -28,8 +26,11 @@ type (
 		amount float64
 		unit   string
 	}
+)
 
-	HandlerFunc func() error
+var (
+	webhook = os.Getenv("ACS_WEBHOOK")
+	channel = os.Getenv("ACS_CHANNEL")
 )
 
 func init() {
@@ -37,55 +38,18 @@ func init() {
 }
 
 func main() {
-	switch {
-	case isAWSLambdaEnv():
-		lambda.Start(GetLambdaHandler())
-	default:
+	switch os.Getenv("ENV") {
+	case "local":
 		start()
+	default:
+		lambda.Start(func() error {
+			return run(webhook, channel)
+		})
 	}
-}
-
-func isAWSLambdaEnv() bool {
-	return os.Getenv("AWS_LAMBDA_FUNCTION_NAME") != ""
-}
-
-func GetLambdaHandler() HandlerFunc {
-	svc := kms.New(session.New(), aws.NewConfig().WithRegion("ap-northeast-1"))
-
-	webhook, err := decodeKMS(svc, os.Getenv("WEBHOOK"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	channel, err := decodeKMS(svc, os.Getenv("CHANNEL"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return func() error {
-		return run(webhook, channel)
-	}
-}
-
-func decodeKMS(svc *kms.KMS, data string) (string, error) {
-	dataBytes, err := base64.StdEncoding.DecodeString(data)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to decode KMS data as Base64")
-	}
-
-	var in = &kms.DecryptInput{
-		CiphertextBlob: dataBytes,
-	}
-	out, err := svc.Decrypt(in)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to decrypt KMS value")
-	}
-
-	return string(out.Plaintext), nil
 }
 
 func start() {
-	if err := run(os.Getenv("WEBHOOK"), os.Getenv("CHANNEL")); err != nil {
+	if err := run(webhook, channel); err != nil {
 		log.Fatal(err)
 	}
 }
